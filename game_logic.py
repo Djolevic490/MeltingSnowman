@@ -11,6 +11,18 @@ def get_random_word():
     """Selects a random word from the list."""
     return WORDS[random.randint(0, len(WORDS) - 1)]
 
+def get_valid_guess(guessed_letters):
+    """Asks for input until it is a single new alphabetic letter."""
+    while True:
+        guess = input("Guess a letter: ").lower()
+
+        if len(guess) != 1 or not guess.isalpha():
+            print("Please enter a single letter (a-z).")
+        elif guess in guessed_letters:
+            print("You already guessed that letter.")
+        else:
+            return guess
+
 def display_game_state(mistakes, secret_word, guessed_letters):
     """Shows the snowman stage and the word so far."""
     print(STAGES[mistakes])
@@ -22,14 +34,17 @@ def display_game_state(mistakes, secret_word, guessed_letters):
             display_word += letter + " "
         else:
             display_word += "_ "
-    print("Word: " + display_word)
+
+    print("Word:    " + display_word)
+    print("Mistakes: " + str(mistakes) + "/" + str(MAX_MISTAKES))
+    if guessed_letters:
+        print("Guessed:  " + ", ".join(guessed_letters))
+    print("-" * 30)
 
 def play_game():
     secret_word = get_random_word()
     guessed_letters = []
     mistakes = 0
-
-    print("Welcome to Snowman Meltdown!")
 
     # Keep going until the snowman melts or the word is solved
     while mistakes < MAX_MISTAKES:
@@ -39,14 +54,10 @@ def play_game():
         if all(letter in guessed_letters for letter in secret_word):
             break
 
-        guess = input("Guess a letter: ").lower()
+        guess = get_valid_guess(guessed_letters)
+        guessed_letters.append(guess)
 
-        if guess in guessed_letters:
-            print("You already guessed that letter.")
-        elif guess in secret_word:
-            guessed_letters.append(guess)
-        else:
-            guessed_letters.append(guess)
+        if guess not in secret_word:
             mistakes += 1
 
     # End message
@@ -55,5 +66,16 @@ def play_game():
     else:
         print("The snowman melted! The word was: " + secret_word)
 
+def main():
+    print("Welcome to Snowman Meltdown!")
+
+    # Play repeatedly until the user declines
+    while True:
+        play_game()
+        again = input("Play again? (y/n): ").lower()
+        if again != "y":
+            print("Thanks for playing!")
+            break
+
 if __name__ == "__main__":
-    play_game()
+    main()
